@@ -7,7 +7,7 @@ import csv
 
 currentyear = 2015
 
-def getgamedata(name):
+def get_game_data(name):
     w = csv.writer(open(name + '.csv', 'w+'))
 
     if __name__ == '__main__':
@@ -32,25 +32,29 @@ def getgamedata(name):
 
             print '-'*79
             print game
-            #print plyr.receiving_rec, plyr.receiving_yds, plyr.receiving_tds, plyr.receiving_lng
-            #if plyr.stats:
-                #print plyr.stats
-            tocsv(plyr, w)
+            to_csv(plyr, game, w)
 
-def tocsv(plyr, w):
+def to_csv(plyr, game,  w):
+    if plyr is None:
+        w.writerow('', '', '', '', '')
+
+    if has_player(game, name):
+        print plyr.__dict__
+
     '''if plyr.receiving_rec:
         print checkstat(plyr, 'receiving_yds')
         w.writerow(row)'''
-    if plyr.__dict__ is not None:
-        print plyr.__dict__
 
-def checkstat(player, stat):
+def check_stat(player, stat):
     if stat in player.__dict__:
         return player.stats[stat]
     else:
         return 0
 
-def getname(data, i):
+def has_player(game, plyr):
+    return len(list(game.drives.plays().players().filter(name=plyr))) > 0
+
+def get_name(data, i):
     player = data[i]['player']
     head, sep, tail = player.partition(',')
     return head
@@ -60,7 +64,7 @@ def main():
         data = json.load(f)
     print len(data)
     for i in range(0,(len(data) + 1)):
-        name = getname(data,i)
-        getgamedata(name)
+        name = get_name(data,i)
+        get_game_data(name)
 if __name__ == '__main__':
     main()
