@@ -44,30 +44,36 @@ def get_game_data(name, book):
 
 def to_csv(data, plyr, game, j, position):
     if plyr is None:
-        row = ((j, str(game), '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'))
+        if data.width < 12:
+            row = ((j, str(game), '0', '0', '0', '0', '0', '0', '0', '0'))
+        else:
+            row = ((j, str(game), '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'))
         data.append(row)
         return
 
     if has_player(game, plyr.name) is False:
-        row = ((j, str(game), '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'))
+        if data.width < 12:
+            row = ((j, str(game), '0', '0', '0', '0', '0', '0', '0', '0'))
+        else:
+            row = ((j, str(game), '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'))
         data.append(row)
         return
     else:
         print plyr.__dict__
 
-    if position == 'RB' or 'WR' or 'TE':
-        row = (j, str(game), check_stat(plyr,'rushing_att'), check_stat(plyr,'rushing_yds'), '0',
+    if position == 'RB' or position == 'WR' or position == 'TE':
+        row = (j, str(game), check_stat(plyr,'rushing_att'), check_stat(plyr,'rushing_yds'),
                check_stat(plyr,'rushing_tds'), check_stat(plyr,'receiving_rec'), check_stat(plyr,'receiving_yds'),
-               '0', check_stat(plyr,'receiving_tds'),
+                check_stat(plyr,'receiving_tds'),
                check_stat(plyr,'fumbles_tot'), check_stat(plyr,'fumbles_lost'))
         data.append(row)
     elif position == 'QB':
-        row = (j, str(game), check_stat(plyr,'passing_cmp'), check_stat(plyr,'passing_att'), '0',
+        row = (j, str(game), check_stat(plyr,'passing_cmp'), check_stat(plyr,'passing_att'),
                check_stat(plyr,'passing_yds'), check_stat(plyr,'passing_int'), check_stat(plyr,'passing_sk'),
-               check_stat(plyr,'passing_tds'),check_stat(plyr,'rushing_att'), check_stat(plyr,'rushing_yds'), '0',
+               check_stat(plyr,'passing_tds'),check_stat(plyr,'rushing_att'), check_stat(plyr,'rushing_yds'),
                check_stat(plyr, 'fumbles_tot'), check_stat(plyr, 'fumbles_lost'))
         data.append(row)
-    elif position == 'K':
+    else:
         row = (j, str(game), check_stat(plyr,'kicking_fga'), check_stat(plyr,'kicking_fgm'),
                check_stat(plyr,'kicking_fgb'), check_stat(plyr,'kicking_fgm_yds'), check_stat(plyr,'kicking_tot'),
                check_stat(plyr,'kickret_touchback'),check_stat(plyr,'kicking_yds'), check_stat(plyr,'kicking_ret'))
@@ -89,17 +95,19 @@ def get_name(data, i):
 
 def create_csv(plyr):
     data = tablib.Dataset()
-    if plyr.position == 'RB' or 'WR' or 'TE':
+    if plyr.position == 'RB' or plyr.position == 'WR' or plyr.position == 'TE':
         data.headers = ('Season', 'Game', 'Rushing_Att', 'Rushing_Yds',
-                       'Rushing_Avg', 'Rushing_Tds', 'Received_Pass',
-                       'Received_Yds', 'Received_Avg', 'Received_Tds',
+                        'Rushing_Tds', 'Received_Pass',
+                       'Received_Yds', 'Received_Tds',
                        'Fumbles', 'Fumbles_Lost')
+
     elif plyr.position == 'QB':
+        print 'titties'*900
         data.headers = ('Season', 'Game', 'Pass_Comp', 'Pass_Att',
-                       'Pass_Percentage', 'Pass_Yds', 'Pass_Interceptions',
-                       'Pass_Sacks', 'Pass_Tds', 'Rushing_Att', 'Rushing_Yds', 'Rushing_Avg'
+                        'Pass_Yds', 'Pass_Interceptions',
+                       'Pass_Sacks', 'Pass_Tds', 'Rushing_Att', 'Rushing_Yds',
                        'Fumbles', 'Fumbles_Lost')
-    elif plyr.position == 'K':
+    else:
         data.headers = ('Season', 'Game', 'Field_Goal_Att', 'Field_Goal_Made',
                        'Field_Goal_Block', 'Field_Goal_Length', 'KickOff_Total',
                        'KickOff_TouchBack', 'KickOff_Yds', 'KickOff_Return')
