@@ -3,21 +3,25 @@ __author__ = 'Darthfrazier'
 
 import nflgame
 import json
-import csv
+import tablib
+
 
 currentyear = 2015
 
 def get_game_data(name):
-    w = csv.writer(open(name + '.csv', 'w+'))
+    #w = csv.writer(open(name + '.csv', 'w+'))
 
     if __name__ == '__main__':
         player = nflgame.find(name)[0]
 
     if '(, )' in str(player):
-        print "Player Inactive, or Player Not Found"
+        print "Player Inactive, or Player Not Found\n\n"
         return
+
+    print "*" *79
     print player
 
+    data = create_csv(player)
     firstyear = currentyear - player.years_pro
 
     if firstyear < 2009:
@@ -25,20 +29,26 @@ def get_game_data(name):
 
     for j in range(firstyear, currentyear):
         print (str(j) + '\n')
+        data.append_separator(j)
         games = nflgame.games(j, home=player.team, away=player.team)
-        nflgame.combine(games).csv("2011.csv")
         for game in games:
             plyr = game.players.name(player.gsis_name)
-
             print '-'*79
             print game
-            to_csv(plyr, game, w)
+            to_csv(plyr, game)
 
-def to_csv(plyr, game,  w):
+
+def to_csv(plyr, game):
     if plyr is None:
-        w.writerow('', '', '', '', '')
+        row = ('', '', '', '', '')
+        w.writerow(row)
+        return
 
-    if has_player(game, name):
+    if has_player(game, plyr.name) is False:
+        row = ('', '', '', '', '')
+        w.writerow(row)
+        return
+    else:
         print plyr.__dict__
 
     '''if plyr.receiving_rec:
@@ -58,6 +68,20 @@ def get_name(data, i):
     player = data[i]['player']
     head, sep, tail = player.partition(',')
     return head
+
+def create_csv(plyr):
+    data = tablib.Dataset()
+    if plyr.position == 'RB' or 'WR' or 'TE':
+        data.headers = ('Season', 'Game', 'Rushing_Att', 'Rushing_Yds',
+                       'Rushing_Avg', 'Rushing_Tds', 'Received_Pass',
+                       'Received_Yds', 'Received_Avg', 'Received_Tds',
+                       'Fumbles', 'Fumbles_Lost')
+    elif plyr.position == 'QB':
+        data.headers = ('Season', 'Game', 'Pass_Comp', 'Pass_Att',
+                       'Pass_Percentage', 'Pass_Yds', 'Pass_Interceptions',
+                       'Pass_Sacks', 'Pass_Tds', 'Rushing_Att', 'Rushing_Yds', 'Rushing_Avg'
+                       'Fumbles', 'Fumbles_Lost')
+    return data
 
 def main():
     with open('players.json', 'r') as f:
